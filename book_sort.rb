@@ -27,15 +27,20 @@ module BookSort
     sorted  = {}
 
     (1..options[:page_count]).each do |count|
-      search  = client.search_books(options[:query])
+      opts    = { :page => count }
+      search  = client.search_books(options[:query], opts)
       results << search.results.work
     end
 
-    results.flatten.each do |r|
+    results.flatten!.each do |r|
       sorted["#{r.average_rating}"] = r
     end
 
-    sorted.each do |k,v|
+    sorted_keys = results.map { |r| r.average_rating.to_s }.sort { |a,b| b <=> a }
+
+    sorted_keys.each do |k|
+      v = sorted[k]
+
       puts "Title: #{v.best_book.title}"
       puts "Author: #{v.best_book.author.name}"
       puts "Ave. Rating: #{v.average_rating}"
